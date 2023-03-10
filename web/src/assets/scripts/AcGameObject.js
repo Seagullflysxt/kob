@@ -5,7 +5,7 @@ export class  AcGameObject {
         //每创建一个对象，就push一个
         //先创建的先执行update
         AC_GAME_OBJECTS.push(this);
-        this.timedelta = 0;
+        this.timedelta = 0; //每两帧之间的时间，单位是ms
         this.has_called_start = false;
     }
 
