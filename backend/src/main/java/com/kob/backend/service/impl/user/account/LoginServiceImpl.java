@@ -27,7 +27,7 @@ public class LoginServiceImpl implements LoginService {
                 new UsernamePasswordAuthenticationToken(username, password);
 
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);//验证这个用户密码是否可以正常登录
-        //如果登录失败，会自动处理，没报异常就继续处理
+        //如果登录失败，会自动处理，没报异常就继续处理，比如前端登录一个不存在的用户
         //登录成功就可以把用户信息取出来
         UserDetailsImpl loginUser = (UserDetailsImpl)authenticate.getPrincipal();
         User user = loginUser.getUser();//把用户取出来

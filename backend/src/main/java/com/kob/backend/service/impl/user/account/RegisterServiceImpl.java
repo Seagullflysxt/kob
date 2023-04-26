@@ -71,7 +71,7 @@ public class RegisterServiceImpl implements RegisterService {
         User user = new User(null, username, encodedPassword, photo);
         userMapper.insert(user);
 
-        map.put("error_message", "创建用户成功");
+        map.put("error_message", "success");
         return map;
     }
 }

@@ -24,7 +24,7 @@ export class Snake extends AcGameObject {
 
         this.eye_direction = 0;//左下角的蛇初始朝上
         if (this.id === 1) {
-            this.eye_direction = 2; //左下角的蛇初始朝下
+            this.eye_direction = 2; //右上角的蛇初始朝下
         }
 
         this.eys_dx = [  //蛇眼睛不同方向x的偏移量
