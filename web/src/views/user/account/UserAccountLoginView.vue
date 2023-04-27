@@ -40,8 +40,8 @@ export default {
         if (jwt_token) {//如果本地jwttoken存在，取出来更新
             store.commit("updateToken", jwt_token);
             store.dispatch("getinfo", {
-                success(resp) {//如果getinfo成功，直接跳转到首页
-                    console.log(resp);
+                success() {//如果getinfo成功，直接跳转到首页
+                    //console.log(resp);
                     router.push({ name: 'home'});
                 },
                 error() {
