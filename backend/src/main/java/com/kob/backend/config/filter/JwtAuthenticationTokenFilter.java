@@ -38,7 +38,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         String userid;
         try {
             Claims claims = JwtUtil.parseJWT(token);
-            userid = claims.getSubject();
+            userid = claims.getSubject();//如果能从token解析出来userid就认定合法，否则不合法
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

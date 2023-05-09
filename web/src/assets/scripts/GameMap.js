@@ -3,13 +3,14 @@ import { Snake } from "./Snake";
 import { Wall } from "./Wall";
 
 export class GameMap extends AcGameObject {
-    constructor(ctx, parent) {
+    constructor(ctx, parent, store) {
         super(); //先执行基类的构造函数
         //
         this.ctx = ctx;
         this.parent = parent;
         //每个格子的宽度
         this.L = 0;
+        this.store = store;
         
         this.rows = 13;
         this.cols = 14;
@@ -23,63 +24,9 @@ export class GameMap extends AcGameObject {
         ];
     }
 
-    check_connectivity(g, sx, sy, tx, ty) {
-        if(sx == tx && sy == ty) {
-            return true;
-        }
-        g[sx][sy] = true;
-        let dx = [-1, 0, 1, 0], dy = [0, 1, 0, -1];
-        for (let i = 0; i < 4; i ++) {
-            let x = sx + dx[i], y = sy + dy[i];
-            if (!g[x][y] && this.check_connectivity(g, x, y, tx, ty)) {
-                return true;
-            }
-        }
-        return false;
-         
-    }
+    
     creat_walls() {
-        const g = [];
-        for (let r = 0; r < this.rows; r ++) {
-            g[r] = [];
-            for (let c = 0; c < this.cols; c ++) {
-                g[r][c] = false;
-            }
-        }
-        //给四周加上墙
-        for(let r = 0;r < this.rows; r ++) {
-            g[r][0] = g[r][this.cols - 1] = true;
-        }
-        for (let c = 1; c < this.cols - 1; c ++) {
-            g[0][c] = g[this.rows - 1][c] = true;
-        }
-
-        //创建随机障碍物,random返回[0,1)的随机值
-        for (let i = 0; i < this.inner_walls_count/2; i ++) {
-            for (let j = 0; j < 1000; j ++) {
-                let r = parseInt(Math.random() * this.rows);
-                let c = parseInt(Math.random() * this.cols);
-                if (g[r][c] || g[this.rows - 1- r][this.cols - 1 - c]) {
-                    continue;
-                }
-                if (r == this.rows - 2 && c == 1 || r == 1 && c == this.cols - 2) {
-                    continue;
-                }
-
-                g[r][c] = g[this.rows - 1- r][this.cols - 1 - c] = true;
-                break;
-            }
-        }
-
-        //先把状态取出来，防止被修改
-        //JS里深度复制一个东西
-        //检查左下角和右上角是否连通
-        //先把g转成json，再用json把它解析出来
-        const copy_g = JSON.parse(JSON.stringify(g));
-
-        if (!this.check_connectivity(copy_g, this.rows - 2, 1, 1, this.cols - 2)) {
-            return false;
-        }
+        const g = this.store.state.pk.gamemap;
         for (let r = 0; r < this.rows; r ++) {
             for (let c = 0; c < this.cols; c ++) {
                 if (g[r][c]) {
@@ -87,9 +34,7 @@ export class GameMap extends AcGameObject {
                 }
             }
         }
-
-        return true;
-    }
+     }
 
     //用来绑定事件
     add_listening_events() {
@@ -119,11 +64,7 @@ export class GameMap extends AcGameObject {
     });
 }
     start() {
-        for (let i = 0; i < 1000; i ++) {
-            if (this.creat_walls()) {
-                break;
-            }
-        }
+        this.creat_walls();
         this.add_listening_events();
     }
     //地图大小为13*13个格子，每一帧都更新一下格子边长
