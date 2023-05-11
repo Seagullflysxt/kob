@@ -17,7 +17,9 @@ export default{
         let canvas = ref(null);
         //当组件挂载完成后需要执行什么操作，创建gamemap对象
         onMounted(() => {
-            new GameMap(canvas.value.getContext('2d'), parent.value, store)//store里有从后端发过来的gamemap
+            store.commit("updateGameObject", 
+            new GameMap(canvas.value.getContext('2d'), parent.value, store)
+            );//store里有从后端发过来的gamemap
         });
 
         return {
