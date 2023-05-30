@@ -27,7 +27,7 @@ export class GameMap extends AcGameObject {
 
     
     creat_walls() {
-        const g = this.store.state.pk.gamemap;
+        const g = this.store.state.pk.gamemap;//在这里用后端发来的g[][]更新前端的gamemap
         for (let r = 0; r < this.rows; r ++) {
             for (let c = 0; c < this.cols; c ++) {
                 if (g[r][c]) {
