@@ -2,8 +2,10 @@ package com.kob.backend.consumer;
 import com.alibaba.fastjson2.JSONObject;
 import com.kob.backend.consumer.utils.Game;
 import com.kob.backend.consumer.utils.JwtAuthentication;
+import com.kob.backend.mapper.BotMapper;
 import com.kob.backend.mapper.RecordMapper;
 import com.kob.backend.mapper.UserMapper;
+import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,11 +29,12 @@ public class WebSocketServer {
     private Session session = null;//自己写的，用来server给前端发信息
     // 每个链接用session维护
 
-    private Game game = null;//本链接的game
+    public Game game = null;//本链接的game
     //注入mapper
     private static UserMapper userMapper;
     public static RecordMapper recordMapper;
-    private static RestTemplate restTemplate;
+    private static BotMapper botMapper;
+    public static RestTemplate restTemplate;
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
 
@@ -42,6 +45,10 @@ public class WebSocketServer {
     @Autowired
     public void setRecordMapper(RecordMapper recordMapper) {
         WebSocketServer.recordMapper = recordMapper;
+    }
+    @Autowired
+    public void setBotMapper(BotMapper botMapper) {
+        WebSocketServer.botMapper = botMapper;
     }
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
@@ -78,14 +85,21 @@ public class WebSocketServer {
         }
     }
 
-    public static void startGame(Integer aId, Integer bId) {
+    public static void startGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {
         User a = userMapper.selectById(aId);
         User b = userMapper.selectById(bId);
-
+        Bot botA = botMapper.selectById(aBotId);//如果id是-1，则是人亲自出马，取出来的是null
+        Bot botB= botMapper.selectById(bBotId);
         //匹配好后创建地图
-        Game game = new Game(13, 14, 20, a.getId(), b.getId());
+        Game game = new Game(13,
+                14,
+                20,
+                a.getId(),
+                botA,
+                b.getId(),
+                botB);
         game.creat_map();
-        if (users.get(a.getId()) != null) {
+        if (users.get(a.getId()) != null) {//如果用户还在界面
             users.get(a.getId()).game = game;
         }
         if (users.get(b.getId()) != null) {
@@ -127,7 +141,7 @@ public class WebSocketServer {
         users.get(b.getId()).sendMessage(respB.toJSONString());//把a的信息传给前端
     }
 
-    private void startMatching() {
+    private void startMatching(Integer botId) {
         System.out.println("start matching");
         //matchpool.add(this.user);//把user加到匹配池
 
@@ -135,6 +149,7 @@ public class WebSocketServer {
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         data.add("rating", this.user.getRating().toString());
+        data.add("bot_id", botId.toString());
         //向matching server发送请求
         restTemplate.postForObject(addPlayerUrl, data, String.class);//第三个是返回值的class,java的反射机制
     }
@@ -151,9 +166,14 @@ public class WebSocketServer {
 
     private void move(int direction) {//小红圈的设置game线程的
         if (game.getPlayerA().getId().equals(this.user.getId())) {//如果本用户是蛇A,设置蛇A的
-            game.setNextStepA(direction);//两个线程之间通信
-        } else if (game.getPlayerB().getId().equals(this.user.getId())){
-            game.setNextStepB(direction);
+            if (game.getPlayerA().getBotId().equals(-1)) {//只有亲自出马，才接收人的键盘输入
+                game.setNextStepA(direction);//两个线程之间通信
+            }
+
+        } else if (game.getPlayerB().getId().equals(this.user.getId())) {
+            if (game.getPlayerB().getBotId().equals(-1)) {//亲自出马
+                game.setNextStepB(direction);
+            }
         }
     }
     @OnMessage
@@ -163,10 +183,10 @@ public class WebSocketServer {
         JSONObject data = JSONObject.parseObject(message);//把前端通过ws用json传来的msg解析出来
         String event = data.getString("event");//把event域取出来
         if ("start-matching".equals(event)) {
-            startMatching();
+            startMatching(data.getInteger("bot_id"));
         } else if ("stop-matching".equals(event)) {
             stopMatching();
-        } else if ("move".equals(event)) {//接收玩家发来的移动信息
+        } else if ("move".equals(event)) {//接收玩家前端亲自操作发来的移动信息
             move(data.getInteger("direction"));
         }
     }

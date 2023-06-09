@@ -12,11 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 public class Player {
     private Integer id;
+    private Integer botId;//-1表示人亲自出马，否则表示bot
+    private String botCode;
     private Integer sx;
     private Integer sy;
     private List<Integer> steps;//玩家每一步的方向
 
-    private boolean check_tail_increasing(int step) { //检查蛇当前回合是否边长
+    private boolean check_tail_increasing(int step) { //检查蛇当前回合是否变长
         if (step <= 10) {
             return true;
         }

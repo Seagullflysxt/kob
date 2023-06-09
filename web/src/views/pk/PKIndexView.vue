@@ -21,6 +21,8 @@ export default {
         const store = useStore();
         const socketUrl = `ws://localhost:3000/websocket/${store.state.user.token}`;
 
+        store.commit("updateLoser", "none");
+
         let socket = null;
         onMounted(() => {//组件挂载完成后创建ws链接
             store.commit("updateOpponent", {
@@ -45,7 +47,7 @@ export default {
                     });
                     setTimeout(() => {
                         store.commit("updateStatus", "playing");
-                    }, 200);//200ms之后执行
+                    }, 50);//200ms之后执行
                     store.commit("updateGame", data.game);//更新地图
                 } else if (data.event === "move") {//收到server发来的两个玩家的移动信息
                     console.log(data);
