@@ -1,3 +1,4 @@
+import { setInterval } from "core-js";
 import { AcGameObject } from "./AcGameObject";
 import { Snake } from "./Snake";
 import { Wall } from "./Wall";
@@ -39,33 +40,58 @@ export class GameMap extends AcGameObject {
 
     //用来绑定事件
     add_listening_events() {
-        //先让canvas聚焦
-        this.ctx.canvas.focus();
+        if (this.store.state.record.is_record) {//录像回放
+            let k = 0;
+            const a_steps = this.store.state.record.a_steps;
+            const b_steps = this.store.state.record.b_steps;  
+            const loser = this.store.state.record.record_loser;         
+            const [snake0, snake1] = this.snakes;
 
-        //const [snake0, snake1] = this.snakes;
-        //获取用户输入
-        this.ctx.canvas.addEventListener("keydown", e => {
-            let d = -1;
-            if (e.key === 'w') {
-                d = 0;
-            } else if (e.key === 'd') {
-                d = 1;
-            } else if (e.key === 's') {
-                d = 2;
-            } else if (e.key === 'a') {
-                d = 3;
-            } 
-            // this.store.state.pk.socket.send(JSON.stringify({
-            //     test: "hihihi",
-            // }));
-            
-            if (d >= 0) { //如果操作合法，就要向后端发送移动的请求
-                this.store.state.pk.socket.send(JSON.stringify({
-                    event: "move",
-                    direction: d,
-                }));
-            }
-        });
+            const interval_id = setInterval(() => {
+                if (k >= a_steps.length - 1) {
+                    if (loser === "all" || loser === "A") {
+                        snake0.status = "die";
+                    }
+                    if (loser === "all" || loser === "B") {
+                        snake1.status =  "die";
+                    }
+                    clearInterval(interval_id);//结束之后取消循环
+                } else {
+                    snake0.set_direction(parseInt(a_steps[k]));
+                    snake1.set_direction(parseInt(b_steps[k]));
+                    k ++;
+                }
+            }, 300);//每300ms执行一下这个函数,传入下一个方向
+        } else {
+            //先让canvas聚焦
+            this.ctx.canvas.focus();
+
+            //const [snake0, snake1] = this.snakes;
+            //获取用户输入
+            this.ctx.canvas.addEventListener("keydown", e => {
+                let d = -1;
+                if (e.key === 'w') {
+                    d = 0;
+                } else if (e.key === 'd') {
+                    d = 1;
+                } else if (e.key === 's') {
+                    d = 2;
+                } else if (e.key === 'a') {
+                    d = 3;
+                } 
+                // this.store.state.pk.socket.send(JSON.stringify({
+                //     test: "hihihi",
+                // }));
+                
+                if (d >= 0) { //如果操作合法，就要向后端发送移动的请求
+                    this.store.state.pk.socket.send(JSON.stringify({
+                        event: "move",
+                        direction: d,
+                    }));
+                }
+            });
+        }
+        
     }
     start() {
         this.creat_walls();
