@@ -43,7 +43,7 @@ export default {
 
         const register = () => {  //提交的话就触发这个函数，注册的话就要访问后端api
             $.ajax({
-                url: "http://localhost:3000/user/account/register/",
+                url: "https://app5596.acapp.acwing.com.cn/api/user/account/register/",
                 type: "post",
                 data: {
                     username: username.value,

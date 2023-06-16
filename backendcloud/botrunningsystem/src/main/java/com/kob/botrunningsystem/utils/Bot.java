@@ -1,9 +1,12 @@
 package com.kob.botrunningsystem.utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
-public class Bot implements com.kob.botrunningsystem.utils.BotInterface {
+public class Bot implements java.util.function.Supplier<Integer> {
     static class Cell{
         public int x;
         public int y;
@@ -44,7 +47,7 @@ public class Bot implements com.kob.botrunningsystem.utils.BotInterface {
         }
         return res;
     }
-    @Override
+
     public Integer nextMove(String input) {//一个厉害点的ai,判断四个方向哪个能走，只判一步
         String[] strs = input.split("#");
         int[][] g = new int[13][14];
@@ -88,4 +91,14 @@ public class Bot implements com.kob.botrunningsystem.utils.BotInterface {
         return 0;//4个方向都走不了的话随便返回一个方向
     }
 
+    @Override
+    public Integer get() {//从文件里把输入读入进来
+        File file = new File("input.txt");
+        try {
+            Scanner sc = new Scanner(file);
+            return nextMove(sc.next());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

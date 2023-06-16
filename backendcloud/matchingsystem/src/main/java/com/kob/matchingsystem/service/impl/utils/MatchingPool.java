@@ -69,7 +69,7 @@ public class MatchingPool extends Thread{
     }
 
     private void matchPlayers() {//这个线程每秒执行一次，尝试匹配所有玩家
-        System.out.println("match players: " + players.toString());
+        //System.out.println("match players: " + players.toString());
         boolean[] used = new boolean[players.size()];//true 表示该玩家已经匹配到对手
         //等待时间越长的玩家越优先匹配，否则可能会流失掉
         //players里靠前的玩家等待时间越长，从前往后匹配玩家

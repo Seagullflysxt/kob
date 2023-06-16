@@ -62,7 +62,7 @@ export default {
 
         const refresh_bots = () => {//刷新bot列表
             $.ajax({
-                url: "http://localhost:3000/user/bot/getlist/",
+                url: "https://app5596.acapp.acwing.com.cn/api/user/bot/getlist/",
                 type: "get",
                 headers: {
                     Authorization: "Bearer " + store.state.user.token,

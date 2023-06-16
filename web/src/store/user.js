@@ -35,7 +35,7 @@ export default {
     actions: {//调用用store.dispatch("函数名", )
         login(context, data) {
             $.ajax({
-                url:"http://localhost:3000/user/account/token/",
+                url:"https://app5596.acapp.acwing.com.cn/api/user/account/token/",
                 type: "post",
                 data: {
                   username: data.username,
@@ -59,7 +59,7 @@ export default {
         },
         getinfo(context, data) {
             $.ajax({
-                url: "http://localhost:3000/user/account/info/",
+                url: "https://app5596.acapp.acwing.com.cn/api/user/account/info/",
                 type:"get",
                 headers: {//要传一个表头,在filter里,获取信息要进行验证，访问的api需要授权的时候要加表头
                     Authorization: "Bearer " + context.state.token,
